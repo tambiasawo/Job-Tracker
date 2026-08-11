@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AddApplicationModal } from "@/components/applications/AddApplicationModal";
 import { ApplicationsTable } from "@/components/applications/ApplicationsTable";
@@ -10,7 +10,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { authClient } from "@/lib/auth/client";
-import { isNewUserSignup } from "@/lib/auth/onboarding";
+import { isNewUserSignup, NEW_USER_QUERY_PARAM } from "@/lib/auth/onboarding";
 import { useProfile } from "@/lib/profile/useProfile";
 import {
   Application,
@@ -28,6 +28,8 @@ type ApplicationsPageProps = {
   initialPage?: number;
   initialLimit?: number;
   initialTotal?: number;
+  initialSearchQuery?: string;
+  isSearchActive?: boolean;
 };
 
 export function ApplicationsPage({
@@ -36,6 +38,8 @@ export function ApplicationsPage({
   initialPage = 1,
   initialLimit = APPLICATIONS_PAGE_SIZE,
   initialTotal = initialApplications.length,
+  initialSearchQuery = "",
+  isSearchActive = false,
 }: ApplicationsPageProps) {
   const router = useRouter();
 
@@ -61,6 +65,7 @@ export function ApplicationsPage({
     useState<Application | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState(initialSearchQuery);
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(total / limit)),
     [total, limit],
@@ -71,7 +76,25 @@ export function ApplicationsPage({
     return applications.filter((app) => app.status === activeFilter);
   }, [applications, activeFilter]);
 
-  const paginationEnabled = activeFilter === "All";
+  const paginationEnabled = activeFilter === "All" && !isSearchActive;
+
+  function buildUrl(nextQuery?: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextQuery) {
+      params.set("q", nextQuery);
+    } else {
+      params.delete("q");
+    }
+
+    const query = params.toString();
+    console.log({ query });
+    return query ? `/?${query}` : "/";
+  }
+
+  function clearSearchFromUrl() {
+    router.replace(buildUrl(), { scroll: false });
+  }
 
   async function fetchApplications(nextPage: number, nextLimit: number) {
     setIsLoadingPage(true);
@@ -208,11 +231,34 @@ export function ApplicationsPage({
     }
   }
 
-  function closeOnboarding() {
-    setIsOnboardingOpen(false);
-    router.replace("/", { scroll: false });
+  function handleSearch(event: FormEvent) {
+    event.preventDefault();
+    const term = searchTerm.trim();
+
+    if (!term) {
+      clearSearchFromUrl();
+      return;
+    }
+
+    router.push(buildUrl(term), { scroll: false });
   }
 
+  function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+    setSearchTerm(value);
+
+    if (value.trim() === "" && searchParams.get("q")) {
+      clearSearchFromUrl();
+    }
+  }
+
+  function closeOnboarding() {
+    setIsOnboardingOpen(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(NEW_USER_QUERY_PARAM);
+    const query = params.toString();
+    router.replace(query ? `/?${query}` : "/", { scroll: false });
+  }
   return (
     <div className="relative flex min-h-screen bg-surface text-on-surface">
       <div
@@ -241,11 +287,15 @@ export function ApplicationsPage({
                     name="search"
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"
                   />
-                  <input
-                    type="text"
-                    placeholder="Search jobs, companies..."
-                    className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest py-2.5 pl-10 pr-4 text-body-sm outline-none transition-all focus:border-secondary focus:ring-2 focus:ring-secondary/10"
-                  />
+                  <form onSubmit={handleSearch}>
+                    <input
+                      type="text"
+                      placeholder="Press enter to search"
+                      className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest py-2.5 pl-10 pr-4 text-body-sm outline-none transition-all focus:border-secondary focus:ring-2 focus:ring-secondary/10"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                    />
+                  </form>
                 </div>
 
                 <button

@@ -13,6 +13,11 @@ function normalizeDateApplied(value: unknown): string {
 
   return "";
 }
+
+async function getToken() {
+  const { data: session } = await auth.getSession();
+  return session?.session.token;
+}
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
