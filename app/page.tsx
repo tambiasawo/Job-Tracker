@@ -2,19 +2,28 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ApplicationsPage } from "@/components/applications/ApplicationsPage";
-import type { Application } from "@/lib/applications";
+import {
+  APPLICATIONS_PAGE_SIZE,
+  type Application,
+  type PaginatedApplications,
+} from "@/lib/applications";
 
-export const dynamic = "force-dynamic";
-
-async function loadApplications(): Promise<{
+async function loadApplications(
+  page = 1,
+  limit = APPLICATIONS_PAGE_SIZE,
+): Promise<{
   applications: Application[];
   loadError: string | null;
+  page: number;
+  limit: number;
+  total: number;
 }> {
   const headersList = await headers();
   const host = headersList.get("host") ?? "localhost:3000";
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
 
-  const response = await fetch(`${protocol}://${host}/api/applications`, {
+  const response = await fetch(
+    `${protocol}://${host}/api/applications?page=${page}&limit=${limit}`, {
     headers: {
       cookie: headersList.get("cookie") ?? "",
     },
@@ -33,23 +42,42 @@ async function loadApplications(): Promise<{
     return {
       applications: [],
       loadError: body?.message ?? "Failed to load applications.",
+      page,
+      limit,
+      total: 0,
     };
   }
 
-  const applications = (await response.json()) as Application[];
+  const data = (await response.json()) as PaginatedApplications;
 
-  return { applications, loadError: null };
+  return {
+    applications: data.items,
+    loadError: null,
+    page: data.page,
+    limit: data.limit,
+    total: data.total,
+  };
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
-  const { applications: initialApplications, loadError } =
-    await loadApplications();
+  const {
+    applications: initialApplications,
+    loadError,
+    page: initialPage,
+    limit: initialLimit,
+    total: initialTotal,
+  } = await loadApplications();
 
   return (
     <Suspense fallback={null}>
       <ApplicationsPage
         initialApplications={initialApplications}
         loadError={loadError}
+        initialPage={initialPage}
+        initialLimit={initialLimit}
+        initialTotal={initialTotal}
       />
     </Suspense>
   );

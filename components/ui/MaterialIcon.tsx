@@ -5,6 +5,8 @@ import {
   Briefcase,
   BriefcaseBusiness,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   ExternalLink,
   FileText,
@@ -50,6 +52,8 @@ const ICONS: Record<string, LucideIcon> = {
   info: Info,
   person_add: UserPlus,
   expand_more: ChevronDown,
+  chevron_left: ChevronLeft,
+  chevron_right: ChevronRight,
   location_on: MapPin,
   lightbulb: Lightbulb,
 };

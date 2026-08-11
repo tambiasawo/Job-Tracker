@@ -16,18 +16,26 @@ import {
   Application,
   ApplicationStatus,
   STATUS_FILTERS,
+  APPLICATIONS_PAGE_SIZE,
   countByStatus,
+  type PaginatedApplications,
 } from "@/lib/applications";
 import { getFilterLabel } from "@/lib/status-styles";
 
 type ApplicationsPageProps = {
   initialApplications: Application[];
   loadError?: string | null;
+  initialPage?: number;
+  initialLimit?: number;
+  initialTotal?: number;
 };
 
 export function ApplicationsPage({
   initialApplications,
   loadError = null,
+  initialPage = 1,
+  initialLimit = APPLICATIONS_PAGE_SIZE,
+  initialTotal = initialApplications.length,
 }: ApplicationsPageProps) {
   const router = useRouter();
 
@@ -38,6 +46,11 @@ export function ApplicationsPage({
 
   const [applications, setApplications] =
     useState<Application[]>(initialApplications);
+  const [page, setPage] = useState(initialPage);
+  const [limit, setLimit] = useState(initialLimit);
+  const [total, setTotal] = useState(initialTotal);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const [pageLoadError, setPageLoadError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | "All">(
     "All",
   );
@@ -48,13 +61,73 @@ export function ApplicationsPage({
     useState<Application | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(total / limit)),
+    [total, limit],
+  );
+
   const filteredApplications = useMemo(() => {
     if (activeFilter === "All") return applications;
     return applications.filter((app) => app.status === activeFilter);
   }, [applications, activeFilter]);
 
+  const paginationEnabled = activeFilter === "All";
+
+  async function fetchApplications(nextPage: number, nextLimit: number) {
+    setIsLoadingPage(true);
+    setPageLoadError(null);
+
+    try {
+      const response = await fetch(
+        `/api/applications?page=${nextPage}&limit=${nextLimit}`,
+      );
+
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        setPageLoadError(result?.message ?? "Failed to load applications.");
+        return;
+      }
+
+      const data = (await response.json()) as PaginatedApplications;
+      setApplications(data.items);
+      setPage(data.page);
+      setLimit(data.limit);
+      setTotal(data.total);
+    } catch {
+      setPageLoadError("Something went wrong. Try again.");
+    } finally {
+      setIsLoadingPage(false);
+    }
+  }
+
   function handleApplicationAdded(application: Application) {
-    setApplications((current) => [application, ...current]);
+    if (page === 1 && paginationEnabled) {
+      setApplications((current) => [application, ...current].slice(0, limit));
+      setTotal((current) => current + 1);
+      return;
+    }
+
+    void fetchApplications(1, limit);
+  }
+
+  function handlePageChange(nextPage: number) {
+    if (
+      !paginationEnabled ||
+      nextPage < 1 ||
+      nextPage > totalPages ||
+      isLoadingPage
+    ) {
+      return;
+    }
+
+    void fetchApplications(nextPage, limit);
+  }
+
+  function handleLimitChange(nextLimit: number) {
+    if (!paginationEnabled || nextLimit === limit || isLoadingPage) return;
+    void fetchApplications(1, nextLimit);
   }
 
   async function handleEditApplication(
@@ -116,9 +189,20 @@ export function ApplicationsPage({
         return;
       }
 
+      const nextTotal = Math.max(0, total - 1);
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / limit));
+      const nextPage = page > nextTotalPages ? nextTotalPages : page;
+
+      if (paginationEnabled && applications.length === 1 && page > 1) {
+        await fetchApplications(nextPage, limit);
+        return;
+      }
+
       setApplications((current) =>
         current.filter((app) => app.id !== application.id),
       );
+      setTotal(nextTotal);
+      setPage(nextPage);
     } catch {
       window.alert("Something went wrong. Try again.");
     }
@@ -174,12 +258,12 @@ export function ApplicationsPage({
                 </button>
               </div>
 
-              {loadError ? (
+              {loadError || pageLoadError ? (
                 <div
                   className="mb-6 rounded-xl border border-error/20 bg-error-container px-4 py-3 text-body-sm text-error"
                   role="alert"
                 >
-                  {loadError}
+                  {loadError ?? pageLoadError}
                 </div>
               ) : null}
 
@@ -208,6 +292,14 @@ export function ApplicationsPage({
 
               <ApplicationsTable
                 applications={filteredApplications}
+                page={page}
+                limit={limit}
+                total={total}
+                totalPages={totalPages}
+                isLoading={isLoadingPage}
+                paginationEnabled={paginationEnabled}
+                onPageChange={handlePageChange}
+                onLimitChange={handleLimitChange}
                 onEdit={openEditModal}
                 onDelete={handleDeleteApplication}
               />

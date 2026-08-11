@@ -21,20 +21,26 @@ const getUserSession = async () => {
   const token = session?.session.token;
   return { userId, token };
 };
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { token } = await getUserSession();
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const page = req.nextUrl.searchParams.get("page") ?? "1";
+  const limit = req.nextUrl.searchParams.get("limit") ?? "10";
+
   try {
-    const response = await fetch(`${API_BASE_URL}/applications`, {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      `${API_BASE_URL}/applications/?limit=${limit}&page=${page}`,
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       const message =
@@ -45,16 +51,26 @@ export async function GET() {
       return NextResponse.json({ message }, { status: response.status });
     }
 
-    const data: unknown = await response.json();
+    const data = (await response.json()) as {
+      items?: unknown;
+      page?: number;
+      limit?: number;
+      total?: number;
+    };
 
-    if (!Array.isArray(data)) {
+    if (!Array.isArray(data.items)) {
       return NextResponse.json(
         { message: "Invalid applications response." },
         { status: 500 },
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      items: data.items,
+      page: data.page ?? Number(page),
+      limit: data.limit ?? Number(limit),
+      total: data.total ?? data.items.length,
+    });
   } catch (error) {
     console.error(
       error instanceof Error

@@ -2,14 +2,119 @@
 
 import Image from "next/image";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { Application, formatDate } from "@/lib/applications";
+import { Application, APPLICATIONS_PAGE_SIZE_OPTIONS, formatDate } from "@/lib/applications";
 import { getStatusStyle } from "@/lib/status-styles";
 
 type ApplicationsTableProps = {
   applications: Application[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  isLoading?: boolean;
+  paginationEnabled?: boolean;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
   onEdit: (application: Application) => void;
   onDelete: (application: Application) => void;
 };
+
+function TablePagination({
+  page,
+  limit,
+  total,
+  totalPages,
+  isLoading = false,
+  paginationEnabled = true,
+  onPageChange,
+  onLimitChange,
+  className = "",
+}: {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  isLoading?: boolean;
+  paginationEnabled?: boolean;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
+  className?: string;
+}) {
+  const rangeStart = total === 0 ? 0 : (page - 1) * limit + 1;
+  const rangeEnd = total === 0 ? 0 : Math.min(page * limit, total);
+  const hasPrevPage = paginationEnabled && !isLoading && page > 1;
+  const hasNextPage =
+    paginationEnabled && !isLoading && total > 0 && page < totalPages;
+
+  return (
+    <div
+      className={`flex flex-col gap-4 border-t border-outline-variant bg-surface-container-low px-4 py-3 text-body-sm sm:flex-row sm:items-center sm:justify-between ${className}`}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <label
+          htmlFor="applications-page-size"
+          className="text-on-surface-variant"
+        >
+          Rows per page
+        </label>
+        <div className="relative">
+          <select
+            id="applications-page-size"
+            value={limit}
+            disabled={!paginationEnabled || isLoading}
+            onChange={(event) => onLimitChange(Number(event.target.value))}
+            className="cursor-pointer appearance-none rounded-lg border border-outline-variant bg-surface-container-lowest py-2 pl-3 pr-9 text-body-sm text-on-surface outline-none transition-all focus:border-secondary focus:ring-2 focus:ring-secondary/10 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {APPLICATIONS_PAGE_SIZE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <MaterialIcon
+            name="expand_more"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          />
+        </div>
+        <span className="text-on-surface-variant">
+          {paginationEnabled
+            ? `Showing ${rangeStart}-${rangeEnd} of ${total}`
+            : "Clear status filter to paginate"}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <span className="text-on-surface-variant">
+          Page{" "}
+          <span className="font-semibold text-on-surface">{page}</span> of{" "}
+          <span className="font-semibold text-on-surface">{totalPages}</span>
+        </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onPageChange(page - 1)}
+            disabled={!hasPrevPage}
+            aria-disabled={!hasPrevPage}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors enabled:hover:bg-surface-container-high enabled:hover:text-on-surface disabled:cursor-not-allowed disabled:border-outline-variant/50 disabled:bg-surface-container-low disabled:text-on-surface-variant/40"
+            aria-label="Previous page"
+          >
+            <MaterialIcon name="chevron_left" className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onPageChange(page + 1)}
+            disabled={!hasNextPage}
+            aria-disabled={!hasNextPage}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors enabled:hover:bg-surface-container-high enabled:hover:text-on-surface disabled:cursor-not-allowed disabled:border-outline-variant/50 disabled:bg-surface-container-low disabled:text-on-surface-variant/40"
+            aria-label="Next page"
+          >
+            <MaterialIcon name="chevron_right" className="size-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function getUrlPreview(url: string): string {
   const withoutProtocol = url.replace(/^https?:\/\//i, "");
@@ -98,19 +203,41 @@ function ActionButtons({
 
 export function ApplicationsTable({
   applications,
+  page,
+  limit,
+  total,
+  totalPages,
+  isLoading = false,
+  paginationEnabled = true,
+  onPageChange,
+  onLimitChange,
   onEdit,
   onDelete,
 }: ApplicationsTableProps) {
+  const paginationProps = {
+    page,
+    limit,
+    total,
+    totalPages,
+    isLoading,
+    paginationEnabled,
+    onPageChange,
+    onLimitChange,
+  };
+
   if (applications.length === 0) {
     return (
-      <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-10 text-center">
-        <MaterialIcon
-          name="work_off"
-          className="mx-auto mb-3 text-4xl text-on-surface-variant"
-        />
-        <p className="text-body-md text-on-surface-variant">
-          No applications match this filter.
-        </p>
+      <div className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+        <div className="p-10 text-center">
+          <MaterialIcon
+            name="work_off"
+            className="mx-auto mb-3 text-4xl text-on-surface-variant"
+          />
+          <p className="text-body-md text-on-surface-variant">
+            No applications match this filter.
+          </p>
+        </div>
+        <TablePagination {...paginationProps} />
       </div>
     );
   }
@@ -161,6 +288,10 @@ export function ApplicationsTable({
             </article>
           );
         })}
+        <TablePagination
+          {...paginationProps}
+          className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm"
+        />
       </div>
 
       <div className="hidden overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm md:block">
@@ -237,6 +368,13 @@ export function ApplicationsTable({
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={7} className="p-0">
+                  <TablePagination {...paginationProps} />
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>

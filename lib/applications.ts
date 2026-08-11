@@ -12,6 +12,17 @@ export type Application = {
   company_logo?: string | null;
 };
 
+export const APPLICATIONS_PAGE_SIZE = 10;
+
+export const APPLICATIONS_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+
+export type PaginatedApplications = {
+  items: Application[];
+  page: number;
+  limit: number;
+  total: number;
+};
+
 export const INDUSTRIES = [
   "Tech",
   "Finance",
