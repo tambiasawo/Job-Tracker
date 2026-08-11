@@ -130,7 +130,7 @@ export function ApplicationsTable({
                 <div
                   className={`min-w-0 flex-1 border-l-4 ${statusStyle.border} pl-3`}
                 >
-                  <h3 className="truncate font-semibold text-primary">
+                  <h3 className="truncate font-semibold text-on-surface">
                     {application.job_title}
                   </h3>
                   <div className="mt-1 flex items-center gap-2 text-body-sm text-on-surface-variant">
@@ -204,7 +204,7 @@ export function ApplicationsTable({
                       <div
                         className={`flex items-center gap-2 border-l-4 ${statusStyle.border} pl-3`}
                       >
-                        <span className="font-semibold text-primary">
+                        <span className="font-semibold text-on-surface">
                           {application.job_title}
                         </span>
                       </div>

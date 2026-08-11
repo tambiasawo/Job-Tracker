@@ -15,7 +15,7 @@ type OverviewCardProps = {
 export function OverviewCard({ stats }: OverviewCardProps) {
   return (
     <div className="h-full rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm sm:p-6">
-      <h3 className="mb-6 flex items-center gap-2 text-headline-md font-semibold text-primary">
+      <h3 className="mb-6 flex items-center gap-2 text-headline-md font-semibold text-on-surface">
         <MaterialIcon name="bar_chart" className="text-secondary" />
         Overview
       </h3>

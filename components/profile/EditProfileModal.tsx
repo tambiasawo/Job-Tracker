@@ -56,7 +56,7 @@ export function EditProfileModal({
 
       <div className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-2xl">
         <div className="flex items-center justify-between border-b border-outline-variant/50 px-5 py-4 sm:px-6">
-          <h2 className="text-headline-md font-semibold text-primary">
+          <h2 className="text-headline-md font-semibold text-on-surface">
             Edit Profile
           </h2>
           <button
@@ -127,7 +127,7 @@ export function EditProfileModal({
               placeholder="Tell employers a bit about your background..."
               value={bio}
               onChange={(event) => setBio(event.target.value)}
-              className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-body-sm text-black outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
+              className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
             />
           </div>
 

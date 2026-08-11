@@ -66,7 +66,7 @@ export function ProfilePage() {
                   </div>
                 ) : (
                   <>
-                    <h2 className="mb-1 text-display-lg-mobile font-bold tracking-tight text-primary sm:text-display-lg">
+                    <h2 className="mb-1 text-display-lg-mobile font-bold tracking-tight text-on-surface sm:text-display-lg">
                       {userName || "User"}
                     </h2>
                     {userEmail ? (
@@ -101,7 +101,7 @@ export function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-body-sm text-primary transition-colors hover:bg-surface-container-low md:w-auto"
+                  className="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-body-sm text-on-surface transition-colors hover:bg-surface-container-low md:w-auto"
                 >
                   Edit Profile
                 </button>
@@ -111,7 +111,7 @@ export function ProfilePage() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-1">
                 <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm sm:p-6">
-                  <h3 className="mb-4 flex items-center gap-2 text-headline-md font-semibold text-primary">
+                  <h3 className="mb-4 flex items-center gap-2 text-headline-md font-semibold text-on-surface">
                     <MaterialIcon name="info" className="text-secondary" />
                     Professional Bio
                   </h3>

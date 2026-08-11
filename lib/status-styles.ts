@@ -9,22 +9,22 @@ export function getStatusStyle(status: ApplicationStatus): StatusStyle {
   switch (status) {
     case "Interviewing":
       return {
-        badge: "bg-[#f59e0b]/10 text-[#d97706]",
-        border: "border-secondary-container",
+        badge: "bg-secondary/15 text-secondary",
+        border: "border-secondary",
       };
     case "Applied":
       return {
-        badge: "bg-secondary/10 text-secondary",
-        border: "border-outline-variant",
+        badge: "bg-primary/15 text-primary",
+        border: "border-primary",
       };
     case "Offer":
       return {
-        badge: "bg-[#10b981]/10 text-[#047857]",
-        border: "border-[#10b981]",
+        badge: "bg-primary/20 text-primary",
+        border: "border-primary",
       };
     case "Rejected":
       return {
-        badge: "bg-error/10 text-error",
+        badge: "bg-error/15 text-error",
         border: "border-error",
       };
     case "Ghosted":

@@ -20,7 +20,7 @@ export function AuthField({
       </label>
       <input
         id={id}
-        className={`w-full rounded-lg border bg-surface-container-lowest text-black px-3 py-2.5 text-body-sm outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10 ${
+        className={`w-full rounded-lg border bg-surface-container-lowest text-on-surface px-3 py-2.5 text-body-sm outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10 ${
           error ? "border-error" : "border-outline-variant"
         } ${className}`}
         {...props}

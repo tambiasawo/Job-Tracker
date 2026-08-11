@@ -58,7 +58,7 @@ export function OnboardingModal({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary/10 text-secondary">
             <MaterialIcon name="person_add" className="text-2xl" />
           </div>
-          <h2 className="text-headline-md font-semibold text-primary">
+          <h2 className="text-headline-md font-semibold text-on-surface">
             Complete your profile
           </h2>
           <p className="mt-2 text-body-sm text-on-surface-variant">
@@ -102,7 +102,7 @@ export function OnboardingModal({
               placeholder="Tell employers a bit about your background..."
               value={bio}
               onChange={(event) => setBio(event.target.value)}
-              className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-body-sm text-black outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
+              className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/60 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
             />
           </div>
           <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low/80 p-4">

@@ -31,7 +31,7 @@ export function AuthShell({
             <MaterialIcon name="work_history" className="text-xl" />
           </div>
           <div>
-            <div className="text-headline-md font-semibold leading-tight text-primary">
+            <div className="text-headline-md font-semibold leading-tight text-on-surface">
               CareerPath
             </div>
             <p className="text-body-sm text-on-surface-variant">
@@ -42,7 +42,7 @@ export function AuthShell({
 
         <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-lg sm:p-8">
           <div className="mb-6 text-center">
-            <h1 className="text-display-lg-mobile font-bold text-primary sm:text-headline-md">
+            <h1 className="text-display-lg-mobile font-bold text-on-surface sm:text-headline-md">
               {title}
             </h1>
             <p className="mt-2 text-body-sm text-on-surface-variant">

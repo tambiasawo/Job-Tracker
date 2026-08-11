@@ -120,7 +120,7 @@ export function EditApplicationModal({
       <div className="relative z-10 flex w-full max-w-lg flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low sm:gap-5 sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-headline-md font-semibold text-primary">
+            <h3 className="text-headline-md font-semibold text-on-surface">
               Update Application
             </h3>
             <p className="mt-1 text-body-sm text-on-surface-variant">

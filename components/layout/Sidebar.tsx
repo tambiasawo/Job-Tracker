@@ -37,7 +37,7 @@ export function Sidebar({
             <MaterialIcon name="work_history" className="text-xl" />
           </div>
           <div>
-            <div className="text-headline-md font-semibold leading-tight tracking-tight text-primary">
+            <div className="text-headline-md font-semibold leading-tight tracking-tight text-on-surface">
               CareerPath
             </div>
             <p className="text-body-sm text-on-surface-variant">Job Tracker</p>
@@ -92,7 +92,7 @@ export function Sidebar({
             </div>
           ) : (
             <div className="min-w-0 flex flex-col">
-              <span className="truncate text-body-sm font-semibold text-primary">
+              <span className="truncate text-body-sm font-semibold text-on-surface">
                 {userName || "User"}
               </span>
               {userEmail ? (

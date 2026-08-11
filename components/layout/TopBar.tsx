@@ -38,7 +38,7 @@ export function TopBar({
 
         {pageTitle ? (
           <div className="min-w-0">
-            <h1 className="truncate text-headline-md font-bold text-primary md:text-display-lg-mobile">
+            <h1 className="truncate text-headline-md font-bold text-on-surface md:text-display-lg-mobile">
               {pageTitle}
             </h1>
             {pageSubtitle ? (
@@ -48,7 +48,7 @@ export function TopBar({
             ) : null}
           </div>
         ) : (
-          <h1 className="text-headline-md font-semibold text-primary md:hidden">
+          <h1 className="text-headline-md font-semibold text-on-surface md:hidden">
             {mobileTitle}
           </h1>
         )}
@@ -93,6 +93,7 @@ export function TopBar({
         >
           <MaterialIcon
             name={theme === "light" ? "dark_mode" : "light_mode"}
+            className="size-5"
           />
         </button>
 
