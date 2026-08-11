@@ -57,13 +57,39 @@ export function ApplicationsPage({
     setApplications((current) => [application, ...current]);
   }
 
-  function handleEditApplication(
-    id: number,
-    updates: Pick<Application, "status" | "date_applied">,
+  async function handleEditApplication(
+    applicationId: number,
+    updates: Omit<Application, "id" | "company_logo">,
   ) {
-    setApplications((current) =>
-      current.map((app) => (app.id === id ? { ...app, ...updates } : app)),
-    );
+    try {
+      const response = await fetch(`/api/applications/${applicationId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        window.alert(result?.message ?? "Failed to update application.");
+        return false;
+      }
+
+      const updated = (await response.json()) as Application;
+
+      setApplications((current) =>
+        current.map((app) =>
+          app.id === applicationId ? { ...app, ...updated } : app,
+        ),
+      );
+      return true;
+    } catch {
+      window.alert("Something went wrong. Try again.");
+      return false;
+    }
   }
 
   function openEditModal(application: Application) {
