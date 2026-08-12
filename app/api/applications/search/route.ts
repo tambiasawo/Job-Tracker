@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
-
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
+import { API_BASE_URL } from "@/lib/api/config";
 
 const getUserSession = async () => {
   const { data: session } = await auth.getSession();
