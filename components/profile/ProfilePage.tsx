@@ -49,7 +49,7 @@ export function ProfilePage() {
       <div className="md:ml-64">
         <TopBar
           showSearch={false}
-          title="CareerPath"
+          pageTitle="Profile"
           onMenuClick={() => setMobileNavOpen(true)}
         />
 

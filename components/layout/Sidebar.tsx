@@ -83,35 +83,40 @@ export function Sidebar({
         </Link>
       </div>
 
-      <div className="mt-auto space-y-4 pt-6">
+      <div className="mt-auto pt-6">
         <div className="rounded-xl border border-outline-variant/40 bg-surface-container-low/50 p-3">
           {isPending ? (
-            <div className="space-y-2">
-              <div className="h-4 w-24 animate-pulse rounded bg-outline-variant/40" />
-              <div className="h-3 w-32 animate-pulse rounded bg-outline-variant/30" />
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-2">
+                <div className="h-4 w-24 animate-pulse rounded bg-outline-variant/40" />
+                <div className="h-3 w-32 animate-pulse rounded bg-outline-variant/30" />
+              </div>
+              <div className="h-9 w-9 animate-pulse rounded-lg bg-outline-variant/30" />
             </div>
           ) : (
-            <div className="min-w-0 flex flex-col">
-              <span className="truncate text-body-sm font-semibold text-on-surface">
-                {userName || "User"}
-              </span>
-              {userEmail ? (
-                <span className="truncate text-xs text-on-surface-variant">
-                  {userEmail}
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex flex-col">
+                <span className="truncate text-body-sm font-semibold text-on-surface">
+                  {userName || "User"}
                 </span>
-              ) : null}
+                {userEmail ? (
+                  <span className="truncate text-xs text-on-surface-variant">
+                    {userEmail}
+                  </span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Logout"
+                aria-label="Logout"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
+              >
+                <MaterialIcon name="logout" className="text-[18px]" />
+              </button>
             </div>
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-outline-variant py-2.5 text-body-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-primary"
-        >
-          <MaterialIcon name="logout" className="text-[18px]" />
-          Log out
-        </button>
       </div>
     </>
   );

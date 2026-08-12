@@ -48,21 +48,22 @@ function TablePagination({
 
   return (
     <div
-      className={`flex flex-col gap-4 border-t border-outline-variant bg-surface-container-low px-4 py-3 text-body-sm sm:flex-row sm:items-center sm:justify-between ${className}`}
+      className={`flex flex-col gap-3 border-t border-outline-variant bg-surface-container-low px-3 py-3 text-body-sm sm:gap-4 sm:px-4 sm:flex-row sm:items-center sm:justify-between ${className}`}
     >
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
         <label
           htmlFor="applications-page-size"
-          className="text-on-surface-variant"
+          className="hidden text-on-surface-variant sm:inline"
         >
           Rows per page
         </label>
-        <div className="relative">
+        <div className="relative shrink-0">
           <select
             id="applications-page-size"
             value={limit}
             disabled={!paginationEnabled || isLoading}
             onChange={(event) => onLimitChange(Number(event.target.value))}
+            aria-label="Rows per page"
             className="cursor-pointer appearance-none rounded-lg border border-outline-variant bg-surface-container-lowest py-2 pl-3 pr-9 text-body-sm text-on-surface outline-none transition-all focus:border-secondary focus:ring-2 focus:ring-secondary/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {APPLICATIONS_PAGE_SIZE_OPTIONS.map((option) => (
@@ -76,15 +77,15 @@ function TablePagination({
             className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
           />
         </div>
-        <span className="text-on-surface-variant">
+        <span className="min-w-0 text-xs text-on-surface-variant sm:text-body-sm">
           {paginationEnabled
-            ? `Showing ${rangeStart}-${rangeEnd} of ${total}`
-            : "Clear status filter to paginate"}
+            ? `${rangeStart}-${rangeEnd} of ${total}`
+            : "Clear filter to paginate"}
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
-        <span className="text-on-surface-variant">
+      <div className="flex items-center justify-between gap-3 sm:justify-end">
+        <span className="whitespace-nowrap text-xs text-on-surface-variant sm:text-body-sm">
           Page{" "}
           <span className="font-semibold text-on-surface">{page}</span> of{" "}
           <span className="font-semibold text-on-surface">{totalPages}</span>
@@ -201,6 +202,72 @@ function ActionButtons({
   );
 }
 
+function MobileApplicationCard({
+  application,
+  onEdit,
+  onDelete,
+}: {
+  application: Application;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const statusStyle = getStatusStyle(application.status);
+
+  return (
+    <article className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <div
+          className={`min-w-0 flex-1 border-l-4 ${statusStyle.border} pl-3`}
+        >
+          <h3 className="truncate font-semibold text-on-surface">
+            {application.job_title}
+          </h3>
+          <div className="mt-1 flex items-center gap-2 text-body-sm text-on-surface-variant">
+            <CompanyAvatar application={application} />
+            <span className="truncate">{application.company_name}</span>
+          </div>
+        </div>
+        <ActionButtons onEdit={onEdit} onDelete={onDelete} />
+      </div>
+
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-body-sm">
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+            Status
+          </dt>
+          <dd className="mt-1">
+            <StatusBadge status={application.status} />
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+            Date Applied
+          </dt>
+          <dd className="mt-1 text-on-surface">
+            {formatDate(application.date_applied)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+            Industry
+          </dt>
+          <dd className="mt-1 truncate text-on-surface-variant">
+            {application.industry}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+            Job Link
+          </dt>
+          <dd className="mt-1">
+            <JobPostLink url={application.job_url} />
+          </dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
+
 export function ApplicationsTable({
   applications,
   page,
@@ -244,57 +311,22 @@ export function ApplicationsTable({
 
   return (
     <>
-      <div className="space-y-3 md:hidden">
-        {applications.map((application) => {
-          const statusStyle = getStatusStyle(application.status);
-
-          return (
-            <article
-              key={application.id}
-              className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 shadow-sm"
-            >
-              <div className="mb-3 flex items-start justify-between gap-3">
-                <div
-                  className={`min-w-0 flex-1 border-l-4 ${statusStyle.border} pl-3`}
-                >
-                  <h3 className="truncate font-semibold text-on-surface">
-                    {application.job_title}
-                  </h3>
-                  <div className="mt-1 flex items-center gap-2 text-body-sm text-on-surface-variant">
-                    <CompanyAvatar application={application} />
-                    <span className="truncate">{application.company_name}</span>
-                  </div>
-                </div>
-                <ActionButtons
-                  onEdit={() => onEdit(application)}
-                  onDelete={() => onDelete(application)}
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <StatusBadge status={application.status} />
-                <span className="text-body-sm text-on-surface-variant">
-                  {formatDate(application.date_applied)}
-                </span>
-              </div>
-              <p className="mt-2 text-body-sm text-on-surface-variant">
-                {application.industry}
-              </p>
-              {application.job_url ? (
-                <div className="mt-2">
-                  <JobPostLink url={application.job_url} />
-                </div>
-              ) : null}
-            </article>
-          );
-        })}
+      <div className="space-y-3 lg:hidden">
+        {applications.map((application) => (
+          <MobileApplicationCard
+            key={application.id}
+            application={application}
+            onEdit={() => onEdit(application)}
+            onDelete={() => onDelete(application)}
+          />
+        ))}
         <TablePagination
           {...paginationProps}
           className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm"
         />
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm lg:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] border-collapse text-left">
             <thead>
