@@ -53,7 +53,7 @@ export function OnboardingModal({
         onClick={handleSkip}
       />
 
-      <div className="relative z-10 flex w-full max-w-lg flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-2xl sm:gap-5 sm:p-8">
+      <div className="relative z-10 flex w-full max-w-lg flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-2xl sm:gap-5 sm:p-6">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary/10 text-secondary">
             <MaterialIcon name="person_add" className="text-2xl" />
@@ -88,7 +88,7 @@ export function OnboardingModal({
             onChange={(event) => setLocation(event.target.value)}
           />
 
-<div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="edit-profile-bio"
               className="text-body-sm font-semibold text-on-surface"
@@ -98,7 +98,7 @@ export function OnboardingModal({
             <textarea
               id="edit-profile-bio"
               name="bio"
-              rows={5}
+              rows={3}
               placeholder="Tell employers a bit about your background..."
               value={bio}
               onChange={(event) => setBio(event.target.value)}
@@ -122,7 +122,7 @@ export function OnboardingModal({
             <button
               type="button"
               onClick={handleSkip}
-              className="cursor-pointer rounded-lg px-4 py-2.5 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-low"
+              className="underline cursor-pointer rounded-lg px-4 py-2.5 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-low"
             >
               Skip for now
             </button>

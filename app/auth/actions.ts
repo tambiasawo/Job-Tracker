@@ -1,13 +1,14 @@
 "use server";
 
 import { auth } from "@/lib/auth/server";
+import type { AuthActionState } from "@/lib/auth/action-state";
 import { newUserDashboardUrl } from "@/lib/auth/onboarding";
 import { redirect } from "next/navigation";
 
 export async function signInWithEmail(
-  _prevState: { error: string } | null,
+  _prevState: AuthActionState,
   formData: FormData,
-) {
+): Promise<AuthActionState> {
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -28,13 +29,13 @@ export async function signInWithEmail(
     return { error: error.message || "Failed to sign in. Try again." };
   }
 
-  redirect("/");
+  return { redirectTo: "/" };
 }
 
 export async function signUpWithEmail(
-  _prevState: { error: string } | null,
+  _prevState: AuthActionState,
   formData: FormData,
-) {
+): Promise<AuthActionState> {
   const name = formData.get("name");
   const email = formData.get("email");
   const password = formData.get("password");
@@ -79,13 +80,13 @@ export async function signUpWithEmail(
     };
   }
 
-  redirect(newUserDashboardUrl());
+  return { redirectTo: newUserDashboardUrl() };
 }
 
 export async function deleteAccount(
-  _prevState: { error: string } | null,
+  _prevState: AuthActionState,
   formData: FormData,
-) {
+): Promise<AuthActionState> {
   const password = formData.get("password");
 
   if (typeof password !== "string" || !password) {

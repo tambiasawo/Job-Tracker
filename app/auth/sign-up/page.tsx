@@ -6,9 +6,12 @@ import { signUpWithEmail } from "@/app/auth/actions";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
+import { useAuthFormRedirect } from "@/lib/auth/useAuthFormRedirect";
 
 export default function SignUpPage() {
   const [state, formAction, isPending] = useActionState(signUpWithEmail, null);
+  const isRedirecting = useAuthFormRedirect(state);
+  const isBusy = isPending || isRedirecting;
 
   return (
     <AuthShell
@@ -74,11 +77,13 @@ export default function SignUpPage() {
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isBusy}
           className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-body-sm font-semibold text-on-primary transition-all hover:bg-primary/90 disabled:opacity-70"
         >
           {isPending ? (
             "Creating account..."
+          ) : isRedirecting ? (
+            "Opening dashboard..."
           ) : (
             <>
               Create account

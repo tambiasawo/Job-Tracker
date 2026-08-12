@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { DashboardLoadingShell } from "@/components/layout/DashboardLoadingShell";
 import { ApplicationsPage } from "@/components/applications/ApplicationsPage";
 import {
   APPLICATIONS_PAGE_SIZE,
@@ -124,9 +125,8 @@ export default async function Home({ searchParams }: HomeProps) {
     } = await loadSearchResults(searchQuery);
 
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<DashboardLoadingShell />}>
         <ApplicationsPage
-          key={`search-${searchQuery}`}
           initialApplications={initialApplications}
           loadError={loadError}
           initialPage={1}
@@ -148,7 +148,7 @@ export default async function Home({ searchParams }: HomeProps) {
   } = await loadApplications();
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<DashboardLoadingShell />}>
       <ApplicationsPage
         key="list"
         initialApplications={initialApplications}
