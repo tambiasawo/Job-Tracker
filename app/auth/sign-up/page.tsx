@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signUpWithEmail } from "@/app/auth/actions";
+import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { newUserDashboardUrl } from "@/lib/auth/onboarding";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { useAuthFormRedirect } from "@/lib/auth/useAuthFormRedirect";
 
@@ -29,6 +32,14 @@ export default function SignUpPage() {
         </>
       }
     >
+      <div className="flex flex-col gap-4">
+        <GoogleSignInButton
+          callbackURL={newUserDashboardUrl()}
+          label="Sign up with Google"
+        />
+
+        <AuthDivider />
+
       <form className="flex flex-col gap-4" action={formAction}>
         <AuthField
           label="Full name"
@@ -92,6 +103,7 @@ export default function SignUpPage() {
           )}
         </button>
       </form>
+      </div>
     </AuthShell>
   );
 }

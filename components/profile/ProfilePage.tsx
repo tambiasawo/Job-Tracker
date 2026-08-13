@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection";
+import { LinkGoogleAccountSection } from "@/components/profile/LinkGoogleAccountSection";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
 import { OverviewCard } from "@/components/profile/OverviewCard";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
@@ -129,6 +130,8 @@ export function ProfilePage() {
             </div>
 
             <DeleteAccountSection userId={userId} />
+
+            <LinkGoogleAccountSection />
           </div>
         </main>
       </div>

@@ -7,6 +7,8 @@ export default auth.middleware({
 
 export const config = {
   matcher: [
+    // OAuth callback must run middleware so verifier exchange can set cookies.
+    "/auth/callback",
     // Protected routes requiring authentication
     "/",
     "/profile",

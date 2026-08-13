@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signInWithEmail } from "@/app/auth/actions";
+import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { useAuthFormRedirect } from "@/lib/auth/useAuthFormRedirect";
 
@@ -29,53 +31,61 @@ export default function SignInPage() {
         </>
       }
     >
-      <form action={formAction} className="flex flex-col gap-4">
-        <AuthField
-          label="Email"
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          required
-        />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <GoogleSignInButton callbackURL="/" />
+        </div>
 
-        <AuthField
-          label="Password"
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          required
-        />
+        <AuthDivider />
 
-        {state?.error ? (
-          <div
-            className="rounded-lg border border-error/20 bg-error-container px-3 py-2 text-body-sm text-error"
-            role="alert"
+        <form action={formAction} className="flex flex-col gap-4">
+          <AuthField
+            label="Email"
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            required
+          />
+
+          <AuthField
+            label="Password"
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            required
+          />
+
+          {state?.error ? (
+            <div
+              className="rounded-lg border border-error/20 bg-error-container px-3 py-2 text-body-sm text-error"
+              role="alert"
+            >
+              {state.error}
+            </div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={isBusy}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-body-sm font-semibold text-on-primary transition-all hover:bg-primary/90 disabled:opacity-70"
           >
-            {state.error}
-          </div>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={isBusy}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-body-sm font-semibold text-on-primary transition-all hover:bg-primary/90 disabled:opacity-70"
-        >
-          {isPending ? (
-            "Signing in..."
-          ) : isRedirecting ? (
-            "Opening dashboard..."
-          ) : (
-            <>
-              Sign in
-              <MaterialIcon name="arrow_forward" className="text-[18px]" />
-            </>
-          )}
-        </button>
-      </form>
+            {isPending ? (
+              "Signing in..."
+            ) : isRedirecting ? (
+              "Opening dashboard..."
+            ) : (
+              <>
+                Sign in
+                <MaterialIcon name="arrow_forward" className="text-[18px]" />
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </AuthShell>
   );
 }
