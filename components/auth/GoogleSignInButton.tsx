@@ -6,6 +6,7 @@ import { oauthCallbackUrl } from "@/lib/auth/oauth-callback";
 
 type GoogleSignInButtonProps = {
   callbackURL?: string;
+  newUserCallbackURL?: string;
   label?: string;
 };
 
@@ -39,6 +40,7 @@ function GoogleIcon() {
 
 export function GoogleSignInButton({
   callbackURL = "/",
+  newUserCallbackURL,
   label = "Continue with Google",
 }: GoogleSignInButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +54,11 @@ export function GoogleSignInButton({
       await authClient.signIn.social({
         provider: "google",
         callbackURL: oauthCallbackUrl(callbackURL),
+        ...(newUserCallbackURL
+          ? {
+              newUserCallbackURL: oauthCallbackUrl(newUserCallbackURL),
+            }
+          : {}),
       });
     } catch (err) {
       console.error("Google sign-in error:", err);

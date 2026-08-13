@@ -33,10 +33,16 @@ export default function SignUpPage() {
       }
     >
       <div className="flex flex-col gap-4">
-        <GoogleSignInButton
-          callbackURL={newUserDashboardUrl()}
-          label="Sign up with Google"
-        />
+        <div className="flex flex-col gap-2">
+          <GoogleSignInButton
+            callbackURL="/"
+            newUserCallbackURL={newUserDashboardUrl()}
+            label="Sign up with Google"
+          />
+          <p className="text-body-sm text-on-surface-variant">
+            Fastest way to get started. Your name comes from your Google profile.
+          </p>
+        </div>
 
         <AuthDivider />
 

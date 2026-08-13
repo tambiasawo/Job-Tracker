@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AddApplicationModal } from "@/components/applications/AddApplicationModal";
 import { ApplicationsTable } from "@/components/applications/ApplicationsTable";
@@ -65,6 +65,12 @@ export function ApplicationsPage({
     useState<Application | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  useEffect(() => {
+    if (isNewUserSignup(searchParams)) {
+      setIsOnboardingOpen(true);
+    }
+  }, [searchParams]);
+
   const [searchTerm, setSearchTerm] = useState(initialSearchQuery);
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(total / limit)),
@@ -88,7 +94,6 @@ export function ApplicationsPage({
     }
 
     const query = params.toString();
-    console.log({ query });
     return query ? `/?${query}` : "/";
   }
 

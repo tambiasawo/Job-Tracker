@@ -7,6 +7,7 @@ import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthField } from "@/components/auth/AuthField";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { newUserDashboardUrl } from "@/lib/auth/onboarding";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { useAuthFormRedirect } from "@/lib/auth/useAuthFormRedirect";
 
@@ -33,7 +34,14 @@ export default function SignInPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <GoogleSignInButton callbackURL="/" />
+          <GoogleSignInButton
+            callbackURL="/"
+            newUserCallbackURL={newUserDashboardUrl()}
+          />
+          <p className="text-body-sm text-on-surface-variant">
+            New here? Google creates your account automatically. Already signed
+            up with email? Use the form below.
+          </p>
         </div>
 
         <AuthDivider />
