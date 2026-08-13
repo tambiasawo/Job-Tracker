@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection";
@@ -20,8 +21,10 @@ function countStatus(applications: Application[], status: string) {
 }
 
 export function ProfilePage() {
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
@@ -39,6 +42,17 @@ export function ProfilePage() {
 
   const userName = session?.user.name ?? "";
   const userEmail = session?.user.email ?? "";
+
+  async function handleLogout() {
+    setIsSigningOut(true);
+
+    try {
+      await authClient.signOut();
+      router.push("/auth/sign-in");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-on-background antialiased selection:bg-secondary-container selection:text-on-secondary">
@@ -98,13 +112,24 @@ export function ProfilePage() {
                 )}
               </div>
 
-              <div className="z-10 w-full md:w-auto">
+              <div className="z-10 flex w-full flex-col gap-2 sm:flex-row md:w-auto">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-body-sm text-on-surface transition-colors hover:bg-surface-container-low md:w-auto"
+                  className="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-body-sm text-on-surface transition-colors hover:bg-surface-container-low sm:w-auto"
                 >
                   Edit Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={isSigningOut || isSessionPending}
+                  title="Log out"
+                  aria-label="Log out"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-outline-variant px-4 py-2.5 text-body-sm text-on-surface-variant transition-colors hover:border-error/30 hover:bg-error-container/10 hover:text-error disabled:opacity-60 sm:w-auto"
+                >
+                  <MaterialIcon name="logout" className="text-[18px]" />
+                  {isSigningOut ? "Signing out..." : "Log out"}
                 </button>
               </div>
             </section>
