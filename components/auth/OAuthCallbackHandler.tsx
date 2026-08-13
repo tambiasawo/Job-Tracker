@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
 import { resolveOAuthErrorMessage } from "@/lib/auth/oauth-errors";
 import { resolveOAuthNextPath } from "@/lib/auth/oauth-callback";
@@ -18,7 +18,6 @@ type OAuthCallbackHandlerProps = {
 export function OAuthCallbackHandler({
   fallbackPath = "/",
 }: OAuthCallbackHandlerProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
@@ -43,8 +42,9 @@ export function OAuthCallbackHandler({
       }
 
       if (data?.session) {
-        router.replace(resolveOAuthNextPath(searchParams, fallbackPath));
-        router.refresh();
+        window.location.assign(
+          resolveOAuthNextPath(searchParams, fallbackPath),
+        );
         return;
       }
 
@@ -61,7 +61,7 @@ export function OAuthCallbackHandler({
     return () => {
       cancelled = true;
     };
-  }, [fallbackPath, router, searchParams]);
+  }, [fallbackPath, searchParams]);
 
   if (error) {
     return (

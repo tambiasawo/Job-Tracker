@@ -25,5 +25,3 @@ export function getApiBaseUrl(): string {
 
   return process.env.API_BASE_URL_DEV ?? DEFAULT_DEV_API_URL;
 }
-
-export const API_BASE_URL = getApiBaseUrl();

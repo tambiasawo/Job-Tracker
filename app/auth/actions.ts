@@ -29,7 +29,7 @@ export async function signInWithEmail(
     return { error: error.message || "Failed to sign in. Try again." };
   }
 
-  return { redirectTo: "/" };
+  redirect("/");
 }
 
 export async function signUpWithEmail(
@@ -80,7 +80,7 @@ export async function signUpWithEmail(
     };
   }
 
-  return { redirectTo: newUserDashboardUrl() };
+  redirect(newUserDashboardUrl());
 }
 
 export async function deleteAccount(

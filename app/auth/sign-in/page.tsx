@@ -9,12 +9,9 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { newUserDashboardUrl } from "@/lib/auth/onboarding";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-import { useAuthFormRedirect } from "@/lib/auth/useAuthFormRedirect";
 
 export default function SignInPage() {
   const [state, formAction, isPending] = useActionState(signInWithEmail, null);
-  const isRedirecting = useAuthFormRedirect(state);
-  const isBusy = isPending || isRedirecting;
 
   return (
     <AuthShell
@@ -38,10 +35,6 @@ export default function SignInPage() {
             callbackURL="/"
             newUserCallbackURL={newUserDashboardUrl()}
           />
-          <p className="text-body-sm text-on-surface-variant">
-            New here? Google creates your account automatically. Already signed
-            up with email? Use the form below.
-          </p>
         </div>
 
         <AuthDivider />
@@ -78,13 +71,11 @@ export default function SignInPage() {
 
           <button
             type="submit"
-            disabled={isBusy}
+            disabled={isPending}
             className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-body-sm font-semibold text-on-primary transition-all hover:bg-primary/90 disabled:opacity-70"
           >
             {isPending ? (
               "Signing in..."
-            ) : isRedirecting ? (
-              "Opening dashboard..."
             ) : (
               <>
                 Sign in

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { getAuthBearerToken } from "@/lib/api/get-auth-token";
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  getBackendUnavailableMessage,
+  isBackendFetchError,
+} from "@/lib/api/backend-fetch";
 
-const getUserSession = async () => {
-  const { data: session } = await auth.getSession();
-  const token = session?.session.token;
-  return { token };
-};
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const term = req.nextUrl.searchParams.get("q")?.trim() ?? "";
@@ -15,15 +15,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "Bad Request" }, { status: 400 });
   }
 
-  const { token } = await getUserSession();
+  const token = await getAuthBearerToken();
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const apiBaseUrl = getApiBaseUrl();
+
   try {
     const response = await fetch(
-      `${API_BASE_URL}/applications/search?q=${encodeURIComponent(term)}`,
+      `${apiBaseUrl}/applications/search?q=${encodeURIComponent(term)}`,
       {
         cache: "no-store",
         headers: {
@@ -72,8 +74,12 @@ export async function GET(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { message: "Something went wrong. Try again" },
-      { status: 500 },
+      {
+        message: isBackendFetchError(error)
+          ? getBackendUnavailableMessage()
+          : "Something went wrong. Try again",
+      },
+      { status: 503 },
     );
   }
 }

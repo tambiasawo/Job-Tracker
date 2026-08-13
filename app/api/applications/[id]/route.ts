@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { getAuthBearerToken } from "@/lib/api/get-auth-token";
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  getBackendUnavailableMessage,
+  isBackendFetchError,
+} from "@/lib/api/backend-fetch";
+
+export const dynamic = "force-dynamic";
+
 function normalizeDateApplied(value: unknown): string {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
@@ -13,25 +20,21 @@ function normalizeDateApplied(value: unknown): string {
   return "";
 }
 
-async function getToken() {
-  const { data: session } = await auth.getSession();
-  return session?.session.token;
-}
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { data: session } = await auth.getSession();
-  const token = session?.session.token;
+  const token = await getAuthBearerToken();
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
+  const apiBaseUrl = getApiBaseUrl();
 
   try {
-    const response = await fetch(`${API_BASE_URL}/applications/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/applications/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -55,10 +58,14 @@ export async function DELETE(
     }
 
     return new NextResponse(null, { status: 204 });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { message: "Something went wrong. Try again" },
-      { status: 500 },
+      {
+        message: isBackendFetchError(error)
+          ? getBackendUnavailableMessage()
+          : "Something went wrong. Try again",
+      },
+      { status: 503 },
     );
   }
 }
@@ -67,8 +74,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { data: session } = await auth.getSession();
-  const token = session?.session.token;
+  const token = await getAuthBearerToken();
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -76,9 +82,10 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
+  const apiBaseUrl = getApiBaseUrl();
 
   try {
-    const response = await fetch(`${API_BASE_URL}/applications/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/applications/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -116,10 +123,14 @@ export async function PATCH(
       date_applied: normalizeDateApplied(updated.date_applied),
       job_url: updated.job_url ?? null,
     });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { message: "Something went wrong. Try again" },
-      { status: 500 },
+      {
+        message: isBackendFetchError(error)
+          ? getBackendUnavailableMessage()
+          : "Something went wrong. Try again",
+      },
+      { status: 503 },
     );
   }
 }

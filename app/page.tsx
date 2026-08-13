@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLoadingShell } from "@/components/layout/DashboardLoadingShell";
 import { ApplicationsPage } from "@/components/applications/ApplicationsPage";
@@ -8,15 +7,12 @@ import {
   type Application,
   type PaginatedApplications,
 } from "@/lib/applications";
-
-async function getRequestContext() {
-  const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:3000";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const cookie = headersList.get("cookie") ?? "";
-
-  return { host, protocol, cookie };
-}
+import { getAuthBearerToken } from "@/lib/api/get-auth-token";
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  getBackendUnavailableMessage,
+  isBackendFetchError,
+} from "@/lib/api/backend-fetch";
 
 async function loadApplications(
   page = 1,
@@ -28,28 +24,50 @@ async function loadApplications(
   limit: number;
   total: number;
 }> {
-  const { host, protocol, cookie } = await getRequestContext();
+  const token = await getAuthBearerToken();
 
-  const response = await fetch(
-    `${protocol}://${host}/api/applications?page=${page}&limit=${limit}`,
-    {
-      headers: { cookie },
-      cache: "no-store",
-    },
-  );
+  if (!token) {
+    redirect("/auth/sign-in");
+  }
 
-  if (response.status === 401) {
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${getApiBaseUrl()}/applications/?limit=${limit}&page=${page}`,
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  } catch (error) {
+    return {
+      applications: [],
+      loadError: isBackendFetchError(error)
+        ? getBackendUnavailableMessage()
+        : "Something went wrong. Try again.",
+      page,
+      limit,
+      total: 0,
+    };
+  }
+
+  if (response.status === 401 || response.status === 403) {
     redirect("/auth/sign-in");
   }
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as {
       message?: string;
+      detail?: string;
     } | null;
 
     return {
       applications: [],
-      loadError: body?.message ?? "Failed to load applications.",
+      loadError:
+        body?.message ?? body?.detail ?? "Failed to load applications.",
       page,
       limit,
       total: 0,
@@ -72,28 +90,48 @@ async function loadSearchResults(q: string): Promise<{
   loadError: string | null;
   total: number;
 }> {
-  const { host, protocol, cookie } = await getRequestContext();
+  const token = await getAuthBearerToken();
 
-  const response = await fetch(
-    `${protocol}://${host}/api/applications/search?q=${encodeURIComponent(q)}`,
-    {
-      headers: { cookie },
-      cache: "no-store",
-    },
-  );
+  if (!token) {
+    redirect("/auth/sign-in");
+  }
 
-  if (response.status === 401) {
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${getApiBaseUrl()}/applications/search?q=${encodeURIComponent(q)}`,
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  } catch (error) {
+    return {
+      applications: [],
+      loadError: isBackendFetchError(error)
+        ? getBackendUnavailableMessage()
+        : "Something went wrong. Try again.",
+      total: 0,
+    };
+  }
+
+  if (response.status === 401 || response.status === 403) {
     redirect("/auth/sign-in");
   }
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as {
       message?: string;
+      detail?: string;
     } | null;
 
     return {
       applications: [],
-      loadError: body?.message ?? "Failed to search applications.",
+      loadError:
+        body?.message ?? body?.detail ?? "Failed to search applications.",
       total: 0,
     };
   }

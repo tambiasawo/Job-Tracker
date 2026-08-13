@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/server";
-import { API_BASE_URL } from "@/lib/api/config";
+import { getAuthBearerToken } from "@/lib/api/get-auth-token";
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  getBackendUnavailableMessage,
+  isBackendFetchError,
+} from "@/lib/api/backend-fetch";
+
+export const dynamic = "force-dynamic";
 
 function normalizeDateApplied(value: unknown): string {
   if (value instanceof Date) {
@@ -14,14 +20,8 @@ function normalizeDateApplied(value: unknown): string {
   return "";
 }
 
-const getUserSession = async () => {
-  const { data: session } = await auth.getSession();
-  const userId = session?.user?.id;
-  const token = session?.session.token;
-  return { userId, token };
-};
 export async function GET(req: NextRequest) {
-  const { token } = await getUserSession();
+  const token = await getAuthBearerToken();
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -29,10 +29,11 @@ export async function GET(req: NextRequest) {
 
   const page = req.nextUrl.searchParams.get("page") ?? "1";
   const limit = req.nextUrl.searchParams.get("limit") ?? "10";
+  const apiBaseUrl = getApiBaseUrl();
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/applications/?limit=${limit}&page=${page}`,
+      `${apiBaseUrl}/applications/?limit=${limit}&page=${page}`,
       {
         cache: "no-store",
         headers: {
@@ -78,22 +79,28 @@ export async function GET(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { message: "Something went wrong. Try again" },
-      { status: 500 },
+      {
+        message: isBackendFetchError(error)
+          ? getBackendUnavailableMessage()
+          : "Something went wrong. Try again",
+      },
+      { status: 503 },
     );
   }
 }
 
 export async function POST(req: NextRequest) {
-  const { token } = await getUserSession();
+  const token = await getAuthBearerToken();
+
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
+  const apiBaseUrl = getApiBaseUrl();
 
   try {
-    const response = await fetch(`${API_BASE_URL}/applications`, {
+    const response = await fetch(`${apiBaseUrl}/applications`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -107,7 +114,7 @@ export async function POST(req: NextRequest) {
         detail?: string;
         message?: string;
       } | null;
-      console.log({ response });
+
       const message =
         response.status === 401 || response.status === 403
           ? "Unauthorized"
@@ -135,10 +142,14 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { message: "Something went wrong. Try again" },
-      { status: 500 },
+      {
+        message: isBackendFetchError(error)
+          ? getBackendUnavailableMessage()
+          : "Something went wrong. Try again",
+      },
+      { status: 503 },
     );
   }
 }
